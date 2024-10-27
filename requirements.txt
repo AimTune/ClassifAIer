@@ -1,0 +1,4 @@
+scikit-learn
+langchain-core
+langchain
+numpy
