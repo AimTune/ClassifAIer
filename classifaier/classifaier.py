@@ -65,13 +65,33 @@ class ClassifAIer:
         """
         return self.embeddings.embed_query(text)
 
-    def fit(self, texts: List[str], labels: List[Any]) -> None:
+    def get_embeddings(self, texts: List[str]) -> List[List[float]]:
+        """Get the embeddings for a given text list.
+
+        Args:
+            texts (List[str]): The input texts for which the embeddings is to be obtained.
+
+        Returns:
+            List[List[float]]: A list of list of floats representing the embeddings
+                of the input texts.
+        """
+        return self.embeddings.embed_documents(texts)
+
+    def fit(
+        self,
+        texts: List[str],
+        labels: List[Any],
+        given_embeddings: List[List[float]] = None,
+    ) -> None:
         """Train the classifier on the provided texts and labels.
 
         Args:
             texts (List[str]): A collection of input texts used for training the classifier.
             labels (List[Any]): The corresponding labels for the input texts,
                 used to supervise the training process.
+            given_embeddings (List[List[float]], optional): Pre-computed embeddings for the input texts.
+                If provided, these will be used instead of generating embeddings from `texts`.
+
 
         Returns:
             None: This method does not return any value.
@@ -79,7 +99,20 @@ class ClassifAIer:
         Raises:
             ValueError: If the number of texts does not match the number of labels.
         """
-        embeddings = np.array([self.get_embedding(text) for text in texts])
+        if given_embeddings is None and len(texts) != len(labels):
+            raise ValueError("The number of texts and labels must be the same.")
+        if len(texts) != len(labels) or (
+            given_embeddings is not None and len(texts) != len(given_embeddings)
+        ):
+            raise ValueError(
+                "The number of texts, labels, and given embeddings must be the same."
+            )
+
+        embeddings = np.array(
+            given_embeddings
+            if given_embeddings is not None
+            else self.get_embeddings(texts)
+        )
         encoded_labels = self.label_encoder.fit_transform(labels)
         self.classifier.fit(embeddings, encoded_labels)
         print("The model has been successfully trained.")
@@ -96,6 +129,19 @@ class ClassifAIer:
         embedding = self.get_embedding(text)
         prediction = self.classifier.predict([embedding])
         return self.label_encoder.inverse_transform(prediction)[0]
+
+    def predict_all(self, texts: List[str]) -> List[Any]:
+        """Predict the labels for a list of input texts.
+
+        Args:
+            texts (List[str]): A list of input texts for which predictions are to be made.
+
+        Returns:
+            List[Any]: A list of predicted labels for the input texts.
+        """
+        embeddings = np.array(self.get_embeddings(texts))
+        predictions = self.classifier.predict(embeddings)
+        return self.label_encoder.inverse_transform(predictions).tolist()
 
     def save(self, filename: str) -> None:
         """Save the trained classifier to a file.

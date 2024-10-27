@@ -49,18 +49,15 @@ random_forest_classifier = RandomForestClassifier(**random_forest_classifier_par
 classifier = ClassifAIer(embedding_provider=embedding_provider, classifier=random_forest_classifier)
 
 # Prepare your data
-texts = ["This is a positive review.", "This is a negative review."]
-labels = ["positive", "negative"]
+texts = ["İspanya Birinci Futbol Ligi (La Liga) ekibi Athletic Bilbao, golcü oyuncusu Aritz Aduriz'in sözleşmesini bir yıllığına uzattı.", "Piyasalar ABD'nin enflasyon verilerine odaklandı."]
+labels = ["spor", "ekonomi"]
 
 # Train the model
 classifier.fit(texts, labels)
 
 # Make predictions
-positive_prediction = classifier.predict("I love this product!")
-print(positive_prediction)  # Output: 'positive'
-
-negative_prediction = classifier.predict("I hate this service.")
-print(negative_prediction)  # Output: negative
+predictions = classifier.predict_all(["Fildişi Sahili Milli Takımı'nın Belçikalı teknik direktörü Marc Wilmots görevinden ayrıldı.", "Borsa, günü yükselişle tamamladı"])
+print(predictions)  # Output: ['spor', 'ekonomi']
 
 # Save the model
 classifier.save("my_classifier.pkl")
