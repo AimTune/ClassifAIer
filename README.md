@@ -1,5 +1,7 @@
 # ClassifAIer
 
+![coverage](https://img.shields.io/badge/coverage-0%25-red)
+
 ClassifAIer is a Python library that combines **scikit-learn** classifiers with **LangChain** embedding libraries, enabling seamless text classification using embeddings from large language models. This library offers a user-friendly interface, allowing you to classify text data in a human-like manner.
 
 ## Features

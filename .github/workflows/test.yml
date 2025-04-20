@@ -26,15 +26,23 @@ jobs:
         python -m pip install --upgrade pip
         pip install -e .
         pip install pytest pytest-cov
-        pip install datasets langchain_openai langchain_community scikit-learn
+        
     - name: Run tests
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
-        pytest tests/ --cov=classifaier --cov-report=xml
+        pytest tests/ --cov=classifaier --cov-report=term-missing --cov-report=xml
         
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        fail_ci_if_error: true 
+    - name: Generate coverage badge
+      run: |
+        coverage=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
+        echo "coverage=$coverage" >> $GITHUB_ENV
+        
+    - name: Update README
+      run: |
+        sed -i "s/!\[coverage\].*/![coverage](https://img.shields.io/badge/coverage-${coverage}%25-green)/" README.md
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add README.md
+        git commit -m "Update coverage badge"
+        git push 

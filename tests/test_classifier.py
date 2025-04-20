@@ -2,11 +2,11 @@ import pytest
 from classifaier import ClassifAIer
 from langchain_openai import OpenAIEmbeddings
 from sklearn.neighbors import KNeighborsClassifier
-from dotenv import load_dotenv
 from datasets import load_dataset
 from sklearn.metrics import f1_score
+#from dotenv import load_dotenv
 
-load_dotenv()
+#load_dotenv()
 
 def test_classifier_initialization():
     embeddings = OpenAIEmbeddings()
