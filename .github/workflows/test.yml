@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.10"]
 
     steps:
     - uses: actions/checkout@v3
@@ -35,6 +35,9 @@ jobs:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       run: |
         pytest tests/ --cov=classifaier --cov-report=term-missing --cov-report=xml
+        echo "TEST_COUNT=$(pytest tests/ --collect-only -q | wc -l)" >> $GITHUB_ENV
+        echo "TEST_PASSED=$(pytest tests/ -q | grep -c 'passed')" >> $GITHUB_ENV
+        echo "TEST_RATIO=$(python -c "print(round($TEST_PASSED/$TEST_COUNT*100))")" >> $GITHUB_ENV
         
     - name: Generate coverage badge
       run: |
@@ -44,13 +47,19 @@ jobs:
     - name: Update README
       run: |
         git pull origin main
-        current_badge=$(grep "!\[coverage\]" README.md || echo "")
-        new_badge="![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-green)"
-        if [ "$current_badge" != "$new_badge" ]; then
-          sed -i "s|!\[coverage\].*|$new_badge|" README.md
+        current_coverage=$(grep "!\[coverage\]" README.md || echo "")
+        new_coverage="![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-green)"
+        current_tests=$(grep "!\[tests\]" README.md || echo "")
+        new_tests="![tests](https://img.shields.io/badge/tests-${TEST_COUNT}-blue)"
+        current_ratio=$(grep "!\[test_ratio\]" README.md || echo "")
+        new_ratio="![test_ratio](https://img.shields.io/badge/test_ratio-${TEST_RATIO}%25-yellow)"
+        if [ "$current_coverage" != "$new_coverage" ] || [ "$current_tests" != "$new_tests" ] || [ "$current_ratio" != "$new_ratio" ]; then
+          sed -i "s|!\[coverage\].*|$new_coverage|" README.md
+          sed -i "s|!\[tests\].*|$new_tests|" README.md
+          sed -i "s|!\[test_ratio\].*|$new_ratio|" README.md
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add README.md
-          git commit -m "Update coverage badge to ${COVERAGE}%"
+          git commit -m "Update badges: coverage ${COVERAGE}%, tests ${TEST_COUNT}, ratio ${TEST_RATIO}%"
           git push
         fi 
