@@ -37,7 +37,7 @@ jobs:
         pytest tests/ --cov=classifaier --cov-report=term-missing --cov-report=xml
         echo "TEST_COUNT=$(pytest tests/ --collect-only -q | wc -l)" >> $GITHUB_ENV
         echo "TEST_PASSED=$(pytest tests/ -q | grep -c 'passed')" >> $GITHUB_ENV
-        echo "TEST_RATIO=$(python -c "print(round($TEST_PASSED/$TEST_COUNT*100))")" >> $GITHUB_ENV
+        echo "TEST_RATIO=$(python -c 'passed=$TEST_PASSED; total=$TEST_COUNT; print(round(passed/total*100))')" >> $GITHUB_ENV
         
     - name: Generate coverage badge
       run: |
