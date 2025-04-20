@@ -35,6 +35,7 @@ pip install ClassifAIer
 ```python
 from classifaier import ClassifAIer
 from langchain.embeddings import OpenAIEmbeddings
+from sklearn.ensemble import RandomForestClassifier
 
 # Initialize the embedding provider
 embedding_provider = OpenAIEmbeddings(api_key='YOUR_API_KEY')
