@@ -46,6 +46,7 @@ jobs:
         sed -i 's|!\[coverage\].*|![coverage](https://img.shields.io/badge/coverage-'"$(echo "scale=0; $coverage*100/1" | bc)"'%25-green)|' README.md
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git pull --rebase origin main
         git add README.md
         git commit -m "Update coverage badge"
-        git push 
+        git push
