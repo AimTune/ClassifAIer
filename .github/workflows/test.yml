@@ -38,15 +38,18 @@ jobs:
         
     - name: Generate coverage badge
       run: |
-        coverage=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(root.attrib['line-rate'])")
-        echo "coverage=$coverage" >> $GITHUB_ENV
+        coverage=$(python -c "import xml.etree.ElementTree as ET; tree = ET.parse('coverage.xml'); root = tree.getroot(); print(float(root.attrib['line-rate'])*100)")
+        echo "COVERAGE=$coverage" >> $GITHUB_ENV
         
     - name: Update README
       run: |
-        sed -i 's|!\[coverage\].*|![coverage](https://img.shields.io/badge/coverage-'"$(echo "scale=0; $coverage*100/1" | bc)"'%25-green)|' README.md
-        git config --global user.name 'github-actions[bot]'
-        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-        git pull --rebase origin main
-        git add README.md
-        git commit -m "Update coverage badge"
-        git push
+        git pull origin main
+        current_badge=$(grep "!\[coverage\]" README.md || echo "")
+        new_badge="![coverage](https://img.shields.io/badge/coverage-${COVERAGE}%25-green)"
+        if [ "$current_badge" != "$new_badge" ]; then
+          sed -i "s|!\[coverage\].*|$new_badge|" README.md
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add README.md
+          git commit -m "Update coverage badge to ${COVERAGE}%"
+          git push 
