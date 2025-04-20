@@ -17,7 +17,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="ClassifAIer",  # Updated project name
-    version="0.1.5",
+    version="0.1.6",
     author="Hamza Agar",
     author_email="hamzaagareng@gmail.com",
     description="A library for text classification using LangChain embeddings and "
