@@ -27,6 +27,7 @@ jobs:
         pip install -e .
         pip install pytest pytest-cov
         pip install datasets langchain_openai langchain_community scikit-learn
+        
     - name: Run tests
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -40,7 +41,7 @@ jobs:
         
     - name: Update README
       run: |
-        sed -i "s/!\[coverage\].*/![coverage](https://img.shields.io/badge/coverage-${coverage}%25-green)/" README.md
+        sed -i 's|!\[coverage\].*|![coverage](https://img.shields.io/badge/coverage-'"$(echo "scale=0; $coverage*100/1" | bc)"'%25-green)|' README.md
         git config --global user.name 'github-actions[bot]'
         git config --global user.email 'github-actions[bot]@users.noreply.github.com'
         git add README.md
